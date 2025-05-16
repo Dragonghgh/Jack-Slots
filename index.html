@@ -3,65 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Slot Machine</title>
+    <title>Working Slot Machine</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Main Menu Screen -->
-    <div class="menu-screen active" id="menuScreen">
-        <div class="menu-content">
-            <h1>🎰 Premium Slots 🎰</h1>
-            <div class="menu-buttons">
-                <button class="menu-btn" id="classicBtn">Classic Slots</button>
-                <button class="menu-btn" id="fruitBtn">Fruit Slots</button>
-                <div class="game-info">
-                    <p>Choose your slot machine style!</p>
-                    <p>Start with 100 credits</p>
-                </div>
-            </div>
-        </div>
+    <!-- Menu Screen -->
+    <div class="screen" id="menuScreen">
+        <h1>SLOT MACHINE</h1>
+        <button id="startBtn">START GAME</button>
     </div>
 
     <!-- Game Screen -->
-    <div class="game-screen" id="gameScreen">
-        <div class="casino-container">
-            <header class="casino-header">
-                <button class="back-btn" id="backBtn">← Menu</button>
-                <div class="balance-display">
-                    <span class="balance-label">CREDITS:</span>
-                    <span class="balance-amount" id="credits">100</span>
-                </div>
-            </header>
-
-            <main class="slot-machine">
-                <div class="slots-container">
-                    <div class="slot-reel" id="slot1">🍒</div>
-                    <div class="slot-reel" id="slot2">🍋</div>
-                    <div class="slot-reel" id="slot3">🍊</div>
-                    <div class="slot-reel" id="slot4">7️⃣</div>
-                </div>
-
-                <div class="control-panel">
-                    <div class="bet-controls">
-                        <div class="bet-title">BET AMOUNT:</div>
-                        <div class="bet-selector">
-                            <button class="bet-btn" id="betDown">-</button>
-                            <div class="bet-amount" id="betAmount">10</div>
-                            <button class="bet-btn" id="betUp">+</button>
-                        </div>
-                    </div>
-                    
-                    <button class="spin-button" id="spinBtn">
-                        <span class="spin-text">SPIN</span>
-                        <span class="spin-arrow">→</span>
-                    </button>
-                </div>
-            </main>
-
-            <div class="message-display" id="message">
-                Place your bet and spin to win!
+    <div class="screen" id="gameScreen" style="display:none">
+        <div class="game-container">
+            <div class="slots">
+                <div class="slot" id="slot1">🍒</div>
+                <div class="slot" id="slot2">🍋</div>
+                <div class="slot" id="slot3">🍊</div>
+                <div class="slot" id="slot4">7️⃣</div>
             </div>
+            
+            <div class="controls">
+                <div class="balance">
+                    Credits: <span id="credits">100</span>
+                </div>
+                <div class="bet-controls">
+                    <button id="betDown">-</button>
+                    <span id="betAmount">10</span>
+                    <button id="betUp">+</button>
+                </div>
+                <button id="spinBtn">SPIN</button>
+            </div>
+            
+            <div id="message">Place your bet and spin!</div>
+            <button id="menuBtn">BACK TO MENU</button>
         </div>
     </div>
 
