@@ -30,6 +30,11 @@ function spin() {
     spinBtn.disabled = true;
     messageEl.textContent = "Spinning...";
     
+    // Add spinning class
+    slot1.classList.add('spinning');
+    slot2.classList.add('spinning');
+    slot3.classList.add('spinning');
+    
     // Spin animation
     let spins = 0;
     const spinInterval = setInterval(() => {
@@ -46,6 +51,11 @@ function spin() {
 }
 
 function finishSpin() {
+    // Remove spinning class
+    slot1.classList.remove('spinning');
+    slot2.classList.remove('spinning');
+    slot3.classList.remove('spinning');
+    
     // Set final symbols
     const s1 = getRandomSymbol();
     const s2 = getRandomSymbol();
@@ -60,18 +70,31 @@ function finishSpin() {
         // Jackpot!
         const winAmount = currentBet * 10;
         credits += winAmount;
-        messageEl.textContent = `JACKPOT! You won ${winAmount} credits!`;
+        showWinMessage(`JACKPOT! You won ${winAmount} credits!`, true);
     } else if (s1 === s2 || s2 === s3 || s1 === s3) {
         // Small win
         const winAmount = currentBet * 2;
         credits += winAmount;
-        messageEl.textContent = `You won ${winAmount} credits!`;
+        showWinMessage(`You won ${winAmount} credits!`, true);
     } else {
-        messageEl.textContent = "No win this time. Try again!";
+        showWinMessage("No win this time. Try again!", false);
     }
     
     updateDisplay();
     spinBtn.disabled = credits < currentBet;
+}
+
+function showWinMessage(message, isWin) {
+    messageEl.textContent = message;
+    messageEl.style.color = isWin ? 'var(--accent)' : '#ff6b6b';
+    messageEl.style.fontWeight = 'bold';
+    
+    if (isWin) {
+        messageEl.classList.add('win-message');
+        setTimeout(() => {
+            messageEl.classList.remove('win-message');
+        }, 1000);
+    }
 }
 
 function getRandomSymbol() {
@@ -83,6 +106,12 @@ function changeBet(amount) {
     currentBet = Math.max(5, Math.min(50, currentBet)); // Keep between 5-50
     betDisplay.textContent = currentBet;
     spinBtn.disabled = credits < currentBet;
+    
+    // Animate bet change
+    betDisplay.classList.add('bet-change');
+    setTimeout(() => {
+        betDisplay.classList.remove('bet-change');
+    }, 200);
 }
 
 function updateDisplay() {
