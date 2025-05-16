@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #0a5c36;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.slot-machine {
+    background-color: #1e8449;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    width: 300px;
+}
+
+.slots {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 2rem 0;
+}
+
+.slot {
+    width: 80px;
+    height: 80px;
+    background-color: white;
+    color: black;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+
+.controls {
+    margin-top: 2rem;
+}
+
+.balance {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.bet-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.bet-controls button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#spinBtn {
+    background-color: gold;
+    color: black;
+    border: none;
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+#spinBtn:hover {
+    transform: scale(1.05);
+}
+
+#spinBtn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#message {
+    min-height: 24px;
+    margin-top: 1rem;
+    font-weight: bold;
+}
