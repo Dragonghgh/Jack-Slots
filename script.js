@@ -1,150 +1,200 @@
-// Game variables
-let credits = 100;
-let currentBet = 10;
-const symbols = ['🍒', '🍋', '🍊', '🍇', '🍉', '💰', '7️⃣'];
-
-// DOM elements
-const menuScreen = document.getElementById('menuScreen');
-const gameScreen = document.getElementById('gameScreen');
-const startBtn = document.getElementById('startBtn');
-const menuBtn = document.getElementById('menuBtn');
-const slot1 = document.getElementById('slot1');
-const slot2 = document.getElementById('slot2');
-const slot3 = document.getElementById('slot3');
-const slot4 = document.getElementById('slot4');
-const creditsDisplay = document.getElementById('credits');
-const betDisplay = document.getElementById('betAmount');
-const spinBtn = document.getElementById('spinBtn');
-const betUpBtn = document.getElementById('betUp');
-const betDownBtn = document.getElementById('betDown');
-const messageEl = document.getElementById('message');
-
-// Event listeners
-startBtn.addEventListener('click', startGame);
-menuBtn.addEventListener('click', returnToMenu);
-spinBtn.addEventListener('click', spin);
-betUpBtn.addEventListener('click', () => changeBet(5));
-betDownBtn.addEventListener('click', () => changeBet(-5));
-
-// Initialize slots
-resetSlots();
-
-// Game functions
-function startGame() {
-    menuScreen.style.display = 'none';
-    gameScreen.style.display = 'block';
-    resetGame();
-}
-
-function returnToMenu() {
-    gameScreen.style.display = 'none';
-    menuScreen.style.display = 'block';
-}
-
-function resetGame() {
-    credits = 100;
-    currentBet = 10;
-    updateDisplay();
-    resetSlots();
-}
-
-function resetSlots() {
-    slot1.textContent = symbols[0];
-    slot2.textContent = symbols[1];
-    slot3.textContent = symbols[2];
-    slot4.textContent = symbols[3];
-}
-
-function spin() {
-    // Deduct bet
-    credits -= currentBet;
-    updateDisplay();
-    spinBtn.disabled = true;
-    messageEl.textContent = "Spinning...";
+document.addEventListener('DOMContentLoaded', function() {
+    // Game state
+    let balance = 100;
+    const symbols = ['🍒', '🍋', '🍊', '🍇', '🍉', '7️⃣'];
     
-    // Spin animation
-    let spins = 0;
-    const spinInterval = setInterval(() => {
-        slot1.textContent = getRandomSymbol();
-        slot2.textContent = getRandomSymbol();
-        slot3.textContent = getRandomSymbol();
-        slot4.textContent = getRandomSymbol();
+    // Bet amounts
+    const bets = {
+        low: 5,
+        medium: 25,
+        high: 100
+    };
+    
+    // Minimum balances required
+    const minBalances = {
+        low: 10,
+        medium: 50,
+        high: 200
+    };
+    
+    // Payout multipliers
+    const payouts = {
+        '🍒🍒🍒': 2,
+        '🍋🍋🍋': 3,
+        '🍊🍊🍊': 4,
+        '🍇🍇🍇': 5,
+        '🍉🍉🍉': 7,
+        '7️⃣7️⃣7️⃣': 10
+    };
+    
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const slotMachines = document.querySelectorAll('.slot-machine');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            
+            // Update active tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Show corresponding slot machine
+            slotMachines.forEach(machine => {
+                machine.classList.remove('active');
+                if (machine.classList.contains(`${tabId}-stakes`)) {
+                    machine.classList.add('active');
+                }
+            });
+        });
+    });
+    
+    // Update balance display
+    function updateBalance() {
+        document.getElementById('balance').textContent = balance;
         
-        spins++;
-        if (spins > 10) {
-            clearInterval(spinInterval);
-            finishSpin();
+        // Enable/disable buttons based on balance
+        document.getElementById('spin-low').disabled = balance < bets.low;
+        document.getElementById('spin-medium').disabled = balance < bets.medium;
+        document.getElementById('spin-high').disabled = balance < bets.high;
+        
+        // Add/remove low balance warning
+        tabButtons.forEach(button => {
+            const tabId = button.getAttribute('data-tab');
+            if (balance < minBalances[tabId]) {
+                button.classList.add('disabled-tab');
+                button.title = `You need at least ${minBalances[tabId]} chips to play this machine`;
+            } else {
+                button.classList.remove('disabled-tab');
+                button.title = '';
+            }
+        });
+    }
+    
+    // Spin the slots
+    function spin(betLevel) {
+        const bet = bets[betLevel];
+        if (balance < bet) {
+            showMessage("Not enough chips to bet!", 'error');
+            return;
         }
-    }, 100);
-}
-
-function finishSpin() {
-    // Set final symbols
-    const s1 = getRandomSymbol();
-    const s2 = getRandomSymbol();
-    const s3 = getRandomSymbol();
-    const s4 = getRandomSymbol();
-    
-    slot1.textContent = s1;
-    slot2.textContent = s2;
-    slot3.textContent = s3;
-    slot4.textContent = s4;
-    
-    // Check win
-    const symbols = [s1, s2, s3, s4];
-    const unique = [...new Set(symbols)];
-    
-    if (unique.length === 1) {
-        // All 4 match
-        const winAmount = currentBet * 20;
-        credits += winAmount;
-        messageEl.textContent = `JACKPOT! You won ${winAmount} credits!`;
-    } 
-    else if (unique.length === 2) {
-        // 3 match or 2 pairs
-        const counts = {};
-        symbols.forEach(s => counts[s] = (counts[s] || 0) + 1);
-        const values = Object.values(counts);
         
-        if (values.includes(3)) {
-            // 3 of a kind
-            const winAmount = currentBet * 10;
-            credits += winAmount;
-            messageEl.textContent = `3 OF A KIND! You won ${winAmount} credits!`;
+        // Deduct bet
+        balance -= bet;
+        updateBalance();
+        
+        // Get slot elements
+        const slot1 = document.getElementById(`${betLevel}1`);
+        const slot2 = document.getElementById(`${betLevel}2`);
+        const slot3 = document.getElementById(`${betLevel}3`);
+        
+        // Disable buttons during animation
+        document.getElementById('spin-low').disabled = true;
+        document.getElementById('spin-medium').disabled = true;
+        document.getElementById('spin-high').disabled = true;
+        
+        // Add spinning animation
+        slot1.classList.add('spinning');
+        slot2.classList.add('spinning');
+        slot3.classList.add('spinning');
+        
+        // Animate spinning
+        let spins = 0;
+        const totalSpins = 20;
+        const spinInterval = setInterval(() => {
+            slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            slot3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            
+            spins++;
+            if (spins >= totalSpins) {
+                clearInterval(spinInterval);
+                
+                // Remove spinning animation
+                slot1.classList.remove('spinning');
+                slot2.classList.remove('spinning');
+                slot3.classList.remove('spinning');
+                
+                // Final result
+                const result1 = symbols[Math.floor(Math.random() * symbols.length)];
+                const result2 = symbols[Math.floor(Math.random() * symbols.length)];
+                const result3 = symbols[Math.floor(Math.random() * symbols.length)];
+                
+                slot1.textContent = result1;
+                slot2.textContent = result2;
+                slot3.textContent = result3;
+                
+                // Check for win
+                checkWin(result1, result2, result3, betLevel);
+                
+                // Re-enable buttons
+                updateBalance();
+            }
+        }, 100);
+    }
+    
+    // Check if the spin was a win
+    function checkWin(s1, s2, s3, betLevel) {
+        const result = s1 + s2 + s3;
+        
+        if (s1 === s2 && s2 === s3) {
+            const multiplier = payouts[result] || 1;
+            const winAmount = bets[betLevel] * multiplier;
+            balance += winAmount;
+            updateBalance();
+            
+            // Win animation
+            const machine = document.querySelector(`.${betLevel}-stakes`);
+            machine.classList.add('win-animation');
+            setTimeout(() => {
+                machine.classList.remove('win-animation');
+            }, 1500);
+            
+            showMessage(`JACKPOT! You won ${winAmount} chips! ${result} pays ${multiplier}x!`, 'success');
         } else {
-            // 2 pairs
-            const winAmount = currentBet * 5;
-            credits += winAmount;
-            messageEl.textContent = `2 PAIRS! You won ${winAmount} credits!`;
+            showMessage("No win this time. Try again!", 'info');
         }
     }
-    else if (unique.length === 3) {
-        // Pair
-        const winAmount = currentBet * 2;
-        credits += winAmount;
-        messageEl.textContent = `PAIR! You won ${winAmount} credits!`;
-    }
-    else {
-        messageEl.textContent = "No win this time. Try again!";
+    
+    // Show message to player
+    function showMessage(msg, type = 'info') {
+        const messageElement = document.getElementById('message');
+        messageElement.textContent = msg;
+        messageElement.className = 'message-box animate__animated animate__fadeIn';
+        messageElement.style.display = 'block';
+        
+        // Set message color based on type
+        if (type === 'error') {
+            messageElement.style.backgroundColor = 'rgba(230, 57, 70, 0.9)';
+            messageElement.style.color = 'white';
+        } else if (type === 'success') {
+            messageElement.style.backgroundColor = 'rgba(6, 214, 160, 0.9)';
+            messageElement.style.color = 'white';
+        } else {
+            messageElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            messageElement.style.color = 'var(--dark-color)';
+        }
+        
+        // Hide message after delay
+        setTimeout(() => {
+            messageElement.classList.add('animate__fadeOut');
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+                messageElement.classList.remove('animate__fadeIn', 'animate__fadeOut');
+            }, 500);
+        }, 3000);
     }
     
-    updateDisplay();
-    spinBtn.disabled = credits < currentBet;
-}
-
-function getRandomSymbol() {
-    return symbols[Math.floor(Math.random() * symbols.length)];
-}
-
-function changeBet(amount) {
-    currentBet += amount;
-    currentBet = Math.max(5, Math.min(50, currentBet)); // Keep between 5-50
-    betDisplay.textContent = currentBet;
-    spinBtn.disabled = credits < currentBet;
-}
-
-function updateDisplay() {
-    creditsDisplay.textContent = credits;
-    betDisplay.textContent = currentBet;
-    spinBtn.disabled = credits < currentBet;
-}
+    // Event listeners
+    document.getElementById('spin-low').addEventListener('click', () => spin('low'));
+    document.getElementById('spin-medium').addEventListener('click', () => spin('medium'));
+    document.getElementById('spin-high').addEventListener('click', () => spin('high'));
+    
+    // Initialize
+    updateBalance();
+    
+    // Show welcome message
+    setTimeout(() => {
+        showMessage("Welcome to Lucky Slots! Start with 100 chips. Good luck!", 'info');
+    }, 500);
+});
